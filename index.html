@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TITO HSEQ · Reporte ACIS</title>
+<meta name="theme-color" content="#940000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--r1:#F30000;--r2:#940000;--r3:#4F0000;--g1:#CCCCCC;--g2:#999999;--g3:#4D4D4D;--bg:#f6f4f3;--card:#fff;--ink:#231f1e;--mut:#6b6461;--line:#e7e2e0;--ok:#1f8a4c;--warn:#c98a00;--bad:#d11a1a;--info:#2b6cb0}
+*{box-sizing:border-box}
+body{margin:0;font-family:Montserrat,Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+header{background:linear-gradient(90deg,var(--r3),var(--r2) 60%,var(--r1));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .tito-h{width:44px;height:50px;flex:0 0 auto}
+.brand h1{margin:0;font-size:17px;font-weight:800}
+.brand small{display:block;font-weight:500;opacity:.85;font-size:11px}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;align-items:center}
+nav a{color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;font-size:13px;opacity:.85;cursor:pointer}
+nav a.on,nav a:hover{background:rgba(255,255,255,.18);opacity:1}
+nav .who{font-size:11px;opacity:.85;margin-left:8px}
+main{max-width:1280px;margin:0 auto;padding:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}.kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;border-top:4px solid var(--r2)}
+.kpi .v{font-size:26px;font-weight:800;margin-top:2px}.kpi .l{font-size:11px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.4px}.kpi .s{font-size:11px;color:var(--mut);margin-top:2px}
+h2{font-size:18px;margin:0 0 4px;font-weight:800}h3{font-size:14px;margin:0 0 10px;font-weight:700}
+.sub{color:var(--mut);font-size:12px;margin:0 0 14px}
+label{display:block;font-size:12px;font-weight:600;margin:10px 0 4px;color:var(--g3)}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--g1);border-radius:8px;font:inherit;font-size:14px;background:#fff}
+textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid #f3000033;border-color:var(--r1)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.btn{background:var(--r1);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--r2)}.btn:disabled{opacity:.5;cursor:wait}
+.btn.sec{background:#fff;color:var(--r2);border:1px solid var(--r2)}.btn.sm{padding:6px 10px;font-size:12px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:120px;padding:12px;border:2px solid var(--g1);background:#fff;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;color:var(--g3)}
+.seg button.on,.opts .opt.on{border-color:var(--r1);color:var(--r1);background:#fff5f5}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:14px}.filters>div{min-width:140px;flex:1}.filters label{margin-top:0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--mut);border-bottom:2px solid var(--line);padding:8px 6px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:8px 6px;vertical-align:top}
+tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#fff7f7}
+.tw{overflow:auto}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.p-Abierto{background:#e8f0fb;color:var(--info)}.p-En{background:#fff3d6;color:#8a6200}.p-Cerrado{background:#e2f4e9;color:var(--ok)}.p-Vencido{background:#fde4e4;color:var(--bad)}.p-Anulado{background:#eee;color:#777}
+.r-Alto{color:var(--bad);font-weight:700}.r-Medio{color:var(--warn);font-weight:700}.r-Bajo{color:var(--ok);font-weight:700}
+.sem{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.ch{position:relative;height:260px}
+.modal{position:fixed;inset:0;background:rgba(30,10,10,.45);display:none;align-items:flex-start;justify-content:center;padding:30px 12px;overflow:auto;z-index:20}
+.modal.on{display:flex}.modal .card{max-width:760px;width:100%}
+.mhead{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.x{background:none;border:0;font-size:22px;cursor:pointer;color:var(--mut)}
+.dl{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:13px;margin:10px 0}.dl dt{color:var(--mut);font-weight:600}.dl dd{margin:0}
+.ph{max-width:100%;max-height:240px;border-radius:8px;border:1px solid var(--line);margin-top:6px}
+.sec-t{font-size:12px;font-weight:800;color:var(--r2);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 4px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.qrg{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.qrc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;border-top:4px solid var(--r1);position:relative}
+.qrc .q{display:flex;justify-content:center;margin:10px 0}.qrc .n{font-weight:800;font-size:14px}.qrc .e{font-size:11px;color:var(--mut)}
+.qrc .u{font-size:10px;color:var(--mut);word-break:break-all;margin:6px 0}
+.qrc .tq{width:54px;height:62px;position:absolute;left:8px;top:8px}
+.center{text-align:center}
+.tito{display:block;margin:0 auto}
+.bubble{background:#eaf6fc;border:1px solid #bfe3f3;color:#1b5875;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:600;position:relative;margin:6px 0 12px}
+.hero{display:flex;gap:14px;align-items:center}
+.hero .tito{margin:0;flex:0 0 auto}
+.note{font-size:11px;color:var(--mut);line-height:1.5}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;display:none;z-index:30;max-width:90vw}
+.qrmode nav{display:none}
+.hidden{display:none!important}
+.hint{font-size:12px;color:#1b5875;background:#eaf6fc;border-radius:8px;padding:6px 10px;margin-top:6px}.hint:empty{display:none}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:10px 12px;border:2px solid var(--g1);background:#fff;border-radius:10px;font:inherit;cursor:pointer;color:var(--ink)}
+.opt .ot{font-weight:800;font-size:14px}.opt .od{font-size:12px;margin-top:2px}.opt .oe{font-size:11px;color:var(--mut);margin-top:3px}
+.opt.on{border-color:var(--r1);background:#fff5f5}
+.counter{font-size:11px;color:var(--mut)}.counter.bad{color:var(--bad);font-weight:700}
+.loading{padding:40px;text-align:center;color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips label{display:flex;gap:4px;align-items:center;margin:0;font-weight:500;background:#f4f1f0;padding:4px 8px;border-radius:6px}
+.chips input{width:auto}
+@media(max-width:640px){main{padding:12px}.dl{grid-template-columns:1fr}.kpi .v{font-size:22px}.hero{flex-direction:column;text-align:center}}
+@media print{
+  header,.noprint,.toast,.modal{display:none!important}
+  body{background:#fff}main{padding:0;max-width:none}
+  .qrg{grid-template-columns:1fr 1fr;gap:10mm}
+  .qrc{break-inside:avoid;border:2px solid var(--r1);padding:8mm}
+  .qrc .q img,.qrc .q canvas{width:55mm!important;height:55mm!important}
+  .qrc .tq{width:22mm;height:25mm}
+  .qrc .n{font-size:16pt}.qrc .e{font-size:10pt}
+}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs><symbol id="tito-svg" viewBox="0 0 72 82">
+  <ellipse cx="10" cy="46" rx="11" ry="13" fill="#8BCFE8"/>
+  <ellipse cx="10" cy="46" rx="7" ry="9" fill="#6BBAD8"/>
+  <ellipse cx="62" cy="46" rx="11" ry="13" fill="#8BCFE8"/>
+  <ellipse cx="62" cy="46" rx="7" ry="9" fill="#6BBAD8"/>
+  <circle cx="36" cy="50" r="26" fill="#8BCFE8"/>
+  <circle cx="36" cy="50" r="22" fill="#A0D8EE"/>
+  <ellipse cx="36" cy="28" rx="28" ry="6" fill="#E8E8E8"/>
+  <path d="M10 28 Q10 6 36 6 Q62 6 62 28Z" fill="#FFFFFF"/>
+  <path d="M14 28 Q14 9 36 9 Q58 9 58 28Z" fill="#F5F5F5"/>
+  <circle cx="36" cy="18" r="7" fill="#fff" stroke="#DC2626" stroke-width="1.5"/>
+  <text x="36" y="22" text-anchor="middle" font-size="8" font-weight="900" fill="#DC2626" font-family="Arial,sans-serif">A</text>
+  <line x1="24" y1="9" x2="18" y2="2" stroke="#B84F10" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="18" cy="2" r="2.5" fill="#E8720C"/>
+  <line x1="48" y1="9" x2="54" y2="2" stroke="#B84F10" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="54" cy="2" r="2.5" fill="#E8720C"/>
+  <rect x="15" y="41" width="42" height="17" rx="8" fill="rgba(180,225,245,0.55)" stroke="#DDEEEE" stroke-width="2"/>
+  <line x1="36" y1="42" x2="36" y2="57" stroke="#DDEEEE" stroke-width="1.5"/>
+  <rect x="12" y="47" width="6" height="4" rx="2" fill="none" stroke="#DDEEEE" stroke-width="1.5"/>
+  <rect x="54" y="47" width="6" height="4" rx="2" fill="none" stroke="#DDEEEE" stroke-width="1.5"/>
+  <circle cx="25" cy="49" r="7" fill="#fff"/>
+  <circle cx="47" cy="49" r="7" fill="#fff"/>
+  <circle cx="25" cy="49" r="4.5" fill="#1a1a2e"/>
+  <circle cx="47" cy="49" r="4.5" fill="#1a1a2e"/>
+  <circle cx="27" cy="47" r="1.8" fill="#fff"/>
+  <circle cx="49" cy="47" r="1.8" fill="#fff"/>
+  <ellipse cx="36" cy="57" rx="3.5" ry="2.5" fill="#4A8FA0"/>
+  <path d="M27 63 Q36 71 45 63" fill="none" stroke="#2a6070" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M30 64.5 Q36 70 42 64.5" fill="#fff"/>
+  <ellipse cx="19" cy="60" rx="5" ry="3" fill="#70B8D5" opacity=".5"/>
+  <ellipse cx="53" cy="60" rx="5" ry="3" fill="#70B8D5" opacity=".5"/>
+</symbol></defs></svg>
+<header>
+  <div class="brand"><span id="hTito"></span><div><h1>TITO HSEQ · Reporte ACIS</h1><small id="hsub">Actos y Condiciones Inseguras · Grupo ANAVA</small></div></div>
+  <nav id="nav"></nav>
+</header>
+<main id="main"><div class="loading">Cargando…</div></main>
+<div class="modal" id="modal"><div class="card" id="mbody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* ============================================================
+   CONFIGURACIÓN — pegar aquí la configuración web de Firebase
+   ============================================================ */
+const FIREBASE_CONFIG = {"apiKey":"AIzaSyADzRNuswRU2qy_7bjwYyE_hgqMHp7HBJY","authDomain":"tito-acis.firebaseapp.com","projectId":"tito-acis","storageBucket":"tito-acis.firebasestorage.app","messagingSenderId":"24328602736","appId":"1:24328602736:web:003443ea55ff537b6be0b5"};
+const SUPERADMIN = "hseq@anava.com";   // correo con acceso total (debe coincidir con firestore.rules)
+const VERSION = '1.0.0';
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, collection, query, where, runTransaction, serverTimestamp, arrayUnion, writeBatch, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ===================== IMÁGENES DE TITO =====================
+   Sube tus imágenes 3D a la carpeta img/ con estos nombres.
+   Si una imagen no existe, se muestra el Tito vectorial.     */
+const TITO = {
+  inicio:'img/tito-inicio.png',      // saludando (formulario de reporte)
+  gracias:'img/tito-gracias.png',    // pulgar arriba (reporte enviado)
+  login:'img/tito-login.png',        // con tablet/carpeta (inicio de sesión)
+  gestion:'img/tito-gestion.png',    // revisando lista de chequeo (gestión)
+  dashboard:'img/tito-dashboard.png',// señalando gráfica (dashboard)
+  qr:'img/tito-qr.png',              // señalando el QR (afiches)
+  alerta:'img/tito-alerta.png'       // alerta / vencidos
+};
+function tito(pose,w=90,cls='tito'){const h=Math.round(w*82/72);
+  return `<span class="${cls}" style="width:${w}px;height:${h}px;display:inline-block;position:relative"><img src="${TITO[pose]||''}" alt="Tito" style="width:100%;height:100%;object-fit:contain;display:none" onload="this.style.display='block';this.nextElementSibling.style.display='none'" onerror="this.remove()"><svg viewBox="0 0 72 82" width="${w}" height="${h}"><use href="#tito-svg"/></svg></span>`}
+
+/* ===================== CATÁLOGOS POR DEFECTO ===================== */
+const EMPRESAS=[{c:'LOG',n:'ANAVA LOGISTICS S.A.S.'},{c:'FZS',n:'ANAVA FZ SERVICES S.A.S.'},{c:'TRA',n:'ANAVA TRANSPORT S.A.S.'},{c:'INT',n:'ANAVA INTERNATIONAL S.A.S.'},{c:'HOL',n:'ANAVA HOLDINGS'},{c:'3KC',n:'3K COMMODITIES'}];
+const CENTROS_DEF=[['KOL','Kolcem (Tolú Viejo)','LOG'],['BUN','Bodega Nacional Buenaventura','LOG'],['YPP','Yara PPP','LOG'],['ARG','Argos','LOG'],['MAL','Maltería','LOG'],['DIA','Diabonos','LOG'],['ADA','ADAMA','LOG'],['PAQ','CL Parquiamérica','LOG'],['INX','ZF Intexzona','FZS'],['PCE','ZF Parque Central','FZS'],['ZFP','ZF del Pacífico (Palmira)','FZS'],['CEL','ZF CELPA','FZS'],['PMB','PMI Bogotá','TRA'],['PMC','PMI Cali','TRA'],['PMM','PMI Medellín','TRA'],['OFI','Oficina ANAVA International','INT'],['HOL','ANAVA Holdings','HOL'],['3KC','3K Commodities','3KC']].map(([c,n,e])=>({c,n,e,t:0,resp:'HSEQ del centro',act:true}));
+const CATS=['Orden y aseo','EPP','Montacargas / equipos de elevación','Seguridad vial','Trabajo en alturas','Sustancias químicas','Eléctrico','Locativo / infraestructura','Incendio y emergencias','Ergonómico / manipulación de cargas','Ambiental / residuos','Herramientas y máquinas','Comportamiento / procedimiento','Otro'];
+const CAT_DESC={
+ 'Orden y aseo':'Desorden, obstáculos en pasillos, material mal apilado, basura o derrames sin limpiar.',
+ 'EPP':'Elementos de protección personal que faltan, están dañados o no se usan (casco, guantes, botas, gafas, protector auditivo, arnés…).',
+ 'Montacargas / equipos de elevación':'Montacargas, apiladores, pantógrafos o reach stackers: fallas, operación insegura, operador sin autorización o peatones en su zona.',
+ 'Seguridad vial':'Vehículos y vías: exceso de velocidad, celular al conducir, parqueo inseguro, señalización vial dañada, fallas del vehículo.',
+ 'Trabajo en alturas':'Trabajos a 2 m o más: sin arnés o línea de vida, escaleras dañadas, bordes sin protección.',
+ 'Sustancias químicas':'Envases sin rótulo, derrames, fugas, almacenamiento incompatible o manipulación sin protección.',
+ 'Eléctrico':'Cables pelados o expuestos, tomas o tableros dañados, conexiones improvisadas.',
+ 'Locativo / infraestructura':'Pisos rotos o resbalosos, huecos, techos, puertas, estanterías o iluminación en mal estado.',
+ 'Incendio y emergencias':'Extintores obstruidos o vencidos, salidas bloqueadas, rutas de evacuación sin señalizar, alarmas dañadas.',
+ 'Ergonómico / manipulación de cargas':'Levantar cargas pesadas sin técnica o ayuda, posturas forzadas, movimientos repetitivos.',
+ 'Ambiental / residuos':'Residuos mal separados, RESPEL mal almacenados, vertimientos, emisiones o desperdicio de agua y energía.',
+ 'Herramientas y máquinas':'Herramientas en mal estado, máquinas sin guardas o usadas de forma incorrecta.',
+ 'Comportamiento / procedimiento':'No seguir un procedimiento, omitir la lista de chequeo, bromas o distracciones durante la tarea.',
+ 'Otro':'Cualquier situación de riesgo que no encaje en las anteriores.'};
+const RIESGOS=[
+ {v:'Alto',i:'🔴',d:'Puede causar en cualquier momento una lesión grave, una muerte, un incendio, una explosión o un derrame grande. Hay que actuar ya.',e:'montacargas sin frenos, persona en altura sin arnés, cable energizado expuesto, fuga o derrame químico, extintor faltante junto a material inflamable.'},
+ {v:'Medio',i:'🟡',d:'Puede causar una lesión que necesite atención médica o incapacidad, o un daño importante, pero no es inminente.',e:'piso mojado sin señalizar, estiba rota en uso, EPP incompleto, carga mal apilada, señal de tránsito interna dañada.'},
+ {v:'Bajo',i:'🟢',d:'Puede causar una molestia o una lesión leve que se atiende con primeros auxilios. Se corrige con acciones sencillas.',e:'desorden menor, señalización desgastada, iluminación regular, residuos fuera de su caneca.'}];
+const VINCULOS=[
+ {v:'Trabajador ANAVA',i:'🦺',d:'Trabajas para una empresa del grupo ANAVA, con contrato directo o enviado por una empresa temporal.'},
+ {v:'Contratista',i:'🛠️',d:'Trabajas para una empresa que le presta servicios a ANAVA (mantenimiento, cargue, aseo, vigilancia, transporte…).'},
+ {v:'Cliente',i:'🏢',d:'Trabajas para el cliente dueño de la operación o de la mercancía (por ejemplo, en una planta inhouse).'},
+ {v:'Visitante',i:'👤',d:'Estás de visita: auditor, proveedor de paso, conductor externo u otra persona.'}];
+const AREAS_DEF=['Bodega / almacén','Muelle o zona de cargue y descargue','Patio de maniobras','Zona de químicos','Parqueadero','Portería / acceso','Oficinas','Baños, vestieres o cafetería','Taller de mantenimiento','Zona de residuos','Planta o instalaciones del cliente','Vía pública / en ruta'];
+const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const CFG_DEF={centros:CENTROS_DEF,plazos:{Alto:3,Medio:10,Bajo:20},metas:{cierre:90,oportuno:85},umbral:2500};
+const QF=['03-31','06-30','09-30','12-31'];
+
+/* ===================== UTILIDADES ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((Date.parse(b+'T12:00:00')-Date.parse(a+'T12:00:00'))/864e5);
+const fmt=s=>s?s.split('-').reverse().join('/'):'—';
+const pct=(a,b)=>b?Math.round(a/b*1000)/10:null;
+const emp=c=>(EMPRESAS.find(x=>x.c===c)||{n:c||'—'}).n;
+function toast(t,ms=2800){const el=$('#toast');el.textContent=t;el.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.display='none',ms)}
+function compress(file,m=900,q=.6){return new Promise(res=>{if(!file)return res('');const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,m/Math.max(im.width,im.height));const cv=document.createElement('canvas');cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);let u=cv.toDataURL('image/jpeg',q);if(u.length>700000)u=cv.toDataURL('image/jpeg',.4);res(u)};im.onerror=()=>res('');im.src=fr.result};fr.readAsDataURL(file)})}
+function errMsg(e){const c=e&&e.code||'';if(c.includes('permission'))return'No tienes permiso para esta acción';if(c.includes('unavailable')||c.includes('network'))return'Sin conexión. Intenta de nuevo';if(c.includes('wrong-password')||c.includes('invalid-credential')||c.includes('user-not-found'))return'Correo o contraseña incorrectos';if(c.includes('too-many'))return'Demasiados intentos. Espera unos minutos';return(e&&e.message)||'Error inesperado'}
+function download(name,content,type){const b=content instanceof Blob?content:new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+
+/* ===================== FIREBASE ===================== */
+const CONFIGURED = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && !String(FIREBASE_CONFIG.apiKey).startsWith('PEGAR');
+let app,auth,db;
+if(CONFIGURED){app=initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getFirestore(app)}
+
+const ST={user:null,perfil:null,cfg:null,reportes:[],anioCargado:null,cargando:false,resumen:[],resAnio:null};
+const isAdmin=()=>ST.perfil&&ST.perfil.rol==='admin';
+const isGestor=()=>ST.perfil&&(ST.perfil.rol==='admin'||ST.perfil.rol==='gestor');
+const todos=()=>ST.perfil&&(isAdmin()||(ST.perfil.centros||[]).includes('*'));
+const misCentros=()=>todos()?ST.cfg.centros.map(c=>c.c):(ST.perfil.centros||[]);
+const puedeEditar=c=>isAdmin()||(ST.perfil&&ST.perfil.rol==='gestor'&&(todos()||(ST.perfil.centros||[]).includes(c)));
+const cen=c=>(ST.cfg&&ST.cfg.centros.find(x=>x.c===c))||{c,n:c,e:'',t:0};
+function estado(r){if(r.estado==='Cerrado'||r.estado==='Anulado')return r.estado;if(r.fCompromiso&&r.fCompromiso<today())return'Vencido';return r.estado}
+const areasDe=cc=>{const a=cen(cc).areas;return(a&&a.length)?a:AREAS_DEF};
+const pill=e=>`<span class="pill p-${e.split(' ')[0]}">${e}</span>`;
+const M=()=>ST.cfg.metas, P=()=>ST.cfg.plazos;
+function sem(v){if(v==null)return'#ccc';return v>=M().cierre?'var(--ok)':v>=70?'var(--warn)':'var(--bad)'}
+
+async function loadCfg(){if(ST.cfg)return ST.cfg;const s=await getDoc(doc(db,'config','general'));ST.cfg=s.exists()?{...CFG_DEF,...s.data()}:null;return ST.cfg}
+async function ensureAuth(){if(auth.currentUser)return auth.currentUser;await signInAnonymously(auth);return auth.currentUser}
+async function loadPerfil(u){
+  if(!u||u.isAnonymous){ST.perfil=null;return}
+  if(u.email&&u.email.toLowerCase()===String(SUPERADMIN).toLowerCase()){ST.perfil={rol:'admin',centros:['*'],nombre:u.email,activo:true,email:u.email};return}
+  const s=await getDoc(doc(db,'usuarios',u.uid));ST.perfil=s.exists()&&s.data().activo!==false?s.data():null;
+}
+async function loadReportes(anio,force){
+  if(!force&&ST.anioCargado===anio)return ST.reportes;
+  ST.cargando=true;let out=[];
+  if(todos()){const s=await getDocs(query(collection(db,'reportes'),where('anio','==',anio)));s.forEach(d=>out.push(d.data()))}
+  else{const res=await Promise.all(misCentros().map(c=>getDocs(query(collection(db,'reportes'),where('centro','==',c),where('anio','==',anio)))));res.forEach(s=>s.forEach(d=>out.push(d.data())))}
+  out.sort((a,b)=>(b.fecha+b.hora)<(a.fecha+a.hora)?-1:1);ST.reportes=out;ST.anioCargado=anio;ST.cargando=false;return out;
+}
+// Indicadores de los reportes ya archivados en cierres trimestrales (agregados por año/mes/centro)
+async function loadResumen(anio,force){
+  if(!force&&ST.resAnio===anio)return ST.resumen;
+  const s=await getDocs(query(collection(db,'resumenes'),where('anios','array-contains',anio)));const rows=[];
+  s.forEach(d=>(d.data().filas||[]).forEach(f=>{if(f.anio===anio)rows.push(f)}));ST.resumen=rows;ST.resAnio=anio;return rows;
+}
+function invalidar(){ST.anioCargado=null;ST.resAnio=null}
+
+/* ===================== NAVEGACIÓN ===================== */
+function nav(){
+  const items=[];if(ST.perfil){items.push(['gestion','Gestión'],['dashboard','Dashboard']);if(isAdmin())items.push(['qr','Códigos QR'],['cierres','Cierres'],['config','Configuración'],['usuarios','Usuarios'])}
+  const v=(location.hash.slice(1)||'').split('-')[0];
+  $('#nav').innerHTML=items.map(([h,t])=>`<a href="#${h}" class="${v===h?'on':''}">${t}</a>`).join('')+
+    (ST.perfil?`<span class="who">${esc(ST.perfil.nombre||ST.user.email)}</span><a id="salir">Salir</a>`:`<a href="#login" class="${v==='login'?'on':''}">Ingresar</a>`);
+  const s=$('#salir');if(s)s.onclick=async()=>{await signOut(auth);ST.perfil=null;ST.reportes=[];ST.anioCargado=null;location.hash='#login'};
+}
+async function route(){
+  $('#hTito').innerHTML=tito('inicio',44,'tito-h');
+  if(!CONFIGURED){$('#main').innerHTML=`<div class="card center" style="max-width:560px;margin:30px auto">${tito('alerta',110)}<h2>Falta configurar Firebase</h2><p class="sub">Pega la configuración web del proyecto en <b>FIREBASE_CONFIG</b> dentro de index.html (ver README).</p></div>`;return}
+  const h=location.hash.slice(1);let v=h||'',code='';
+  if(h.startsWith('reportar-')){v='reportar';code=h.slice(9).toUpperCase()}
+  document.body.classList.toggle('qrmode',!!code);
+  $('#hsub').textContent='Actos y Condiciones Inseguras · Grupo ANAVA';
+  try{
+    if(v==='reportar'){await ensureAuth();await loadCfg();nav();return vReportar(code)}
+    if(!ST.perfil){if(v&&v!=='login'){location.hash='#login';return}nav();return vLogin()}
+    if(v===''||v==='login'){location.hash='#dashboard';return}
+    if(!ST.cfg)await loadCfg();
+    if(!ST.cfg){nav();return isAdmin()?vInit():($('#main').innerHTML=`<div class="card">El catálogo aún no está inicializado. Contacta a la administradora.</div>`)}
+    if(['qr','config','usuarios','cierres'].includes(v)&&!isAdmin()){location.hash='#dashboard';return}
+    nav();
+    ({gestion:vGestion,dashboard:vDashboard,qr:vQR,config:vConfig,usuarios:vUsuarios,cierres:vCierres}[v]||vDashboard)();
+  }catch(e){console.error(e);$('#main').innerHTML=`<div class="card center">${tito('alerta',90)}<h3>No se pudo cargar</h3><p class="sub">${esc(errMsg(e))}</p><button class="btn" onclick="location.reload()">Reintentar</button></div>`}
+}
+
+/* ===================== LOGIN ===================== */
+function vLogin(){
+  $('#main').innerHTML=`<div class="card" style="max-width:420px;margin:30px auto"><div class="center">${tito('login',110)}</div>
+   <h2 class="center">Ingreso gestores HSEQ</h2><p class="sub center">Para reportar un acto o condición insegura no necesitas cuenta: escanea el QR de tu centro.</p>
+   <form id="fl"><label>Correo</label><input id="lE" type="email" required autocomplete="username"><label>Contraseña</label><input id="lP" type="password" required autocomplete="current-password">
+   <button class="btn" style="width:100%;margin-top:14px" id="lB">Ingresar</button></form>
+   <p class="center"><a href="#" id="lR" style="font-size:12px;color:var(--r2)">¿Olvidaste tu contraseña?</a></p></div>`;
+  $('#fl').onsubmit=async e=>{e.preventDefault();$('#lB').disabled=true;
+    try{const c=await signInWithEmailAndPassword(auth,$('#lE').value.trim(),$('#lP').value);await loadPerfil(c.user);
+      if(!ST.perfil){await signOut(auth);toast('Tu usuario no está habilitado. Contacta a HSEQ corporativo');$('#lB').disabled=false;return}
+      location.hash='#dashboard'}catch(err){toast(errMsg(err));$('#lB').disabled=false}};
+  $('#lR').onclick=async e=>{e.preventDefault();const m=$('#lE').value.trim();if(!m)return toast('Escribe tu correo primero');
+    try{await sendPasswordResetEmail(auth,m);toast('Te enviamos un correo para restablecer la contraseña')}catch(err){toast(errMsg(err))}};
+}
+function vInit(){
+  $('#main').innerHTML=`<div class="card center" style="max-width:560px;margin:30px auto">${tito('inicio',110)}<h2>Bienvenida a TITO HSEQ · ACIS</h2>
+   <p class="sub">Primer ingreso: crea el catálogo de empresas y centros de trabajo. Luego podrás ajustarlo en Configuración.</p><button class="btn" id="iB">Inicializar catálogo</button></div>`;
+  $('#iB').onclick=async()=>{try{await setDoc(doc(db,'config','general'),CFG_DEF);ST.cfg=CFG_DEF;toast('Catálogo creado');location.hash='#config'}catch(e){toast(errMsg(e))}};
+}
+
+/* ===================== REPORTAR (QR) ===================== */
+let form={};
+function vReportar(code){
+  if(!ST.cfg){$('#main').innerHTML=`<div class="card center">${tito('alerta',90)}<p>La app aún no está configurada. Avisa al equipo HSEQ.</p></div>`;return}
+  const c=code?ST.cfg.centros.find(x=>x.c===code&&x.act):null;
+  if(code&&!c){$('#main').innerHTML=`<div class="card center" style="max-width:520px;margin:20px auto">${tito('alerta',100)}<h3>Este código QR no está activo</h3><p class="sub">Avisa al HSEQ de tu centro. Código: ${esc(code)}</p></div>`;return}
+  form={tipo:'',riesgo:'',vinculo:''};
+  if(c)$('#hsub').textContent=`${c.n} · ${emp(c.e)}`;
+  $('#main').innerHTML=`<div class="card" style="max-width:720px;margin:0 auto">
+   <div class="hero">${tito('inicio',96)}<div><h2>Reporta un acto o condición insegura</h2><div class="bubble">¡Hola! Soy Tito. Cuéntame lo que viste: toma un minuto y puede ser anónimo. Reportar también es cuidarnos 🦺</div></div></div>
+   <form id="frm">
+    ${c?`<div class="kpi" style="border-top-color:var(--r1)"><div class="l">Centro de trabajo</div><div style="font-weight:800;font-size:16px">${esc(c.n)}</div><div class="s">${esc(emp(c.e))}</div></div>`
+      :`<label>Centro de trabajo *</label><select id="fCentro" required><option value="">Selecciona…</option>${ST.cfg.centros.filter(x=>x.act).map(x=>`<option value="${x.c}">${esc(x.n)} — ${esc(emp(x.e))}</option>`).join('')}</select>`}
+    <label>¿Qué vas a reportar? *</label>
+    <div class="seg" id="segTipo"><button type="button" data-v="Acto">🧍 Acto inseguro<br><small style="font-weight:500">Algo que hace una persona</small></button><button type="button" data-v="Condición">⚠️ Condición insegura<br><small style="font-weight:500">Algo del lugar, equipo o entorno</small></button></div>
+    <label>Categoría *</label><select id="fCat" required><option value="">Selecciona…</option>${CATS.map(x=>`<option>${x}</option>`).join('')}</select>
+    <div class="hint" id="hCat"></div>
+    <div class="row"><div><label>Lugar / área *</label><select id="fArea" required></select></div>
+    <div><label id="lDet">Precisa el sitio (opcional)</label><input id="fDet" maxlength="80" placeholder="Ej.: Bodega 2, pasillo 4, muelle 3"></div></div>
+    <label>Describe lo que viste *</label><textarea id="fDesc" required minlength="5" maxlength="2000" placeholder="¿Qué pasó o qué condición encontraste?"></textarea>
+    <label>¿Qué tan peligroso es? *</label>
+    <div class="opts" id="segRiesgo">${RIESGOS.map(r=>`<button type="button" data-v="${r.v}" class="opt"><div class="ot">${r.i} ${r.v}</div><div class="od">${r.d}</div><div class="oe">Ejemplos: ${r.e}</div></button>`).join('')}</div>
+    <div class="hint">¿Dudas entre dos niveles? Elige el más alto. Si es <b>Alto</b>, además de reportar avisa de inmediato a tu supervisor o al HSEQ del centro.</div>
+    <label>¿Se tomó alguna medida inmediata? (opcional)</label><input id="fMed" maxlength="300" placeholder="Ej.: Se aisló el área, se avisó al supervisor">
+    <label>Foto (opcional)</label><input type="file" id="fFoto" accept="image/*" capture="environment">
+    <label>¿Cuál es tu relación con ANAVA? (vínculo) *</label>
+    <div class="hint" style="margin-top:0">Nos ayuda a saber quién reporta y a quién involucrar en la solución. No afecta tu anonimato.</div>
+    <div class="opts" id="segVin">${VINCULOS.map(r=>`<button type="button" data-v="${r.v}" class="opt"><div class="ot">${r.i} ${r.v}</div><div class="od">${r.d}</div></button>`).join('')}</div>
+    <label>Tu nombre (opcional)</label><input id="fRep" maxlength="80" placeholder="Déjalo vacío para que tu reporte sea anónimo">
+    <div style="margin-top:18px"><button class="btn" id="fB" style="width:100%;padding:14px;font-size:15px">Enviar reporte</button></div>
+   </form></div>`;
+  const segs=(id,k)=>$(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{form[k]=b.dataset.v;$(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))});
+  segs('#segTipo','tipo');segs('#segRiesgo','riesgo');segs('#segVin','vinculo');
+  $('#fCat').onchange=()=>{const d=CAT_DESC[$('#fCat').value];$('#hCat').innerHTML=d?'ℹ️ '+esc(d):''};
+  const fillAreas=cc=>{const as=cc?areasDe(cc):[];$('#fArea').innerHTML=`<option value="">${cc?'Selecciona…':'Primero elige el centro'}</option>`+as.map(a=>`<option>${esc(a)}</option>`).join('')+(cc?'<option value="Otro">Otro (descríbelo)</option>':'')};
+  fillAreas(c?c.c:'');if(!c)$('#fCentro').onchange=()=>fillAreas($('#fCentro').value);
+  $('#fArea').onchange=()=>{const o=$('#fArea').value==='Otro';$('#lDet').textContent=o?'¿Cuál lugar? *':'Precisa el sitio (opcional)';$('#fDet').required=o};
+  $('#frm').onsubmit=async e=>{e.preventDefault();
+    if(!form.tipo)return toast('Selecciona si es acto o condición');if(!form.riesgo)return toast('Selecciona el nivel de peligro');
+    const cc=c?c.c:$('#fCentro').value;if(!cc)return toast('Selecciona el centro de trabajo');
+    if(!$('#fArea').value)return toast('Selecciona el lugar o área');if($('#fArea').value==='Otro'&&!$('#fDet').value.trim())return toast('Escribe cuál es el lugar');
+    if(!form.vinculo)return toast('Selecciona tu relación con ANAVA (vínculo)');
+    const desc=$('#fDesc').value.trim();if(desc.length<5)return toast('Describe un poco más lo que viste');
+    const area=($('#fArea').value==='Otro'?$('#fDet').value.trim():$('#fArea').value+($('#fDet').value.trim()?' — '+$('#fDet').value.trim():'')).slice(0,120);
+    $('#fB').disabled=true;$('#fB').textContent='Enviando…';
+    try{
+      await ensureAuth();
+      const f=today(),y=f.slice(0,4),now=new Date();const foto=await compress($('#fFoto').files[0]);
+      const cx=cen(cc);let id='';
+      await runTransaction(db,async tx=>{
+        const cref=doc(db,'contadores',`${cc}-${y}`);const s=await tx.get(cref);const n=(s.exists()?s.data().n:0)+1;
+        id=`ACIS-${cc}-${y}-${String(n).padStart(4,'0')}`;
+        tx.set(cref,{n});
+        tx.set(doc(db,'reportes',id),{id,seq:n,anio:y,mes:f.slice(5,7),fecha:f,hora:now.toTimeString().slice(0,5),centro:cc,empresa:cx.e||'',
+          tipo:form.tipo,categoria:$('#fCat').value,riesgo:form.riesgo,area,descripcion:desc,medida:$('#fMed').value.trim(),
+          reportante:$('#fRep').value.trim()||'Anónimo',vinculo:form.vinculo,tieneFoto:!!foto,tieneFotoCierre:false,
+          responsable:cx.resp||'',fCompromiso:addDays(f,ST.cfg.plazos[form.riesgo]),accion:'',estado:'Abierto',fCierre:'',cierreDesc:'',verificado:'',eficaz:'',motivoAnula:'',
+          hist:[{f,t:'Reporte recibido'+(code?' por QR':'')}],creado:serverTimestamp()});
+        if(foto)tx.set(doc(db,'fotos',id+'_r'),{reporte:id,data:foto});
+      });
+      $('#main').innerHTML=`<div class="card center" style="max-width:520px;margin:0 auto;padding:30px 16px">${tito('gracias',130)}
+        <h2>¡Gracias por reportar!</h2><div class="bubble">Con tu reporte evitamos que alguien se lastime. ¡Eres parte del ADN de la seguridad!</div>
+        <div style="font-size:22px;font-weight:800;color:var(--r2);margin:8px 0">${id}</div>
+        <p class="sub">Asignado a <b>${esc(cx.resp||'HSEQ')}</b> · fecha límite de gestión <b>${fmt(addDays(f,ST.cfg.plazos[form.riesgo]))}</b> (riesgo ${form.riesgo}).</p>
+        <button class="btn" id="otro">Reportar otro</button></div>`;
+      $('#otro').onclick=()=>vReportar(code);window.scrollTo(0,0);
+    }catch(err){console.error(err);toast('No se pudo enviar: '+errMsg(err),4500);$('#fB').disabled=false;$('#fB').textContent='Enviar reporte'}
+  };
+}
+
+/* ===================== GESTIÓN ===================== */
+let gf={anio:today().slice(0,4),estado:'pend',empresa:'',centro:'',q:''};let gRows=[];
+async function vGestion(force){
+  $('#main').innerHTML=`<div class="loading">${tito('gestion',80)}<br>Cargando reportes…</div>`;
+  await loadReportes(gf.anio,force);
+  const o=(arr,sel)=>arr.map(([v,t])=>`<option value="${v}" ${v===sel?'selected':''}>${esc(t)}</option>`).join('');
+  const cs=ST.cfg.centros.filter(c=>misCentros().includes(c.c)&&(!gf.empresa||c.e===gf.empresa));
+  const anios=[];for(let y=+today().slice(0,4);y>=2026;y--)anios.push(String(y));
+  const venc=ST.reportes.filter(r=>estado(r)==='Vencido').length;
+  $('#main').innerHTML=`<div class="hero" style="margin-bottom:12px">${tito(venc?'alerta':'gestion',70)}<div><h2>Gestión y seguimiento</h2><p class="sub" style="margin:0">Asigna responsable, define la acción, controla el plazo y cierra con evidencia. Los reportes de trimestres ya cerrados están en los respaldos de Cierres. ${venc?`<b style="color:var(--bad)">Hay ${venc} reportes vencidos.</b>`:''}</p></div></div>
+   <div class="card"><div class="filters">
+    <div style="max-width:110px"><label>Año</label><select id="gA">${o(anios.map(a=>[a,a]),gf.anio)}</select></div>
+    <div><label>Estado</label><select id="gE"><option value="">Todos</option>${o([['pend','Pendientes (no cerrados)'],['Abierto','Abierto'],['En gestión','En gestión'],['Vencido','Vencido'],['Cerrado','Cerrado'],['Anulado','Anulado']],gf.estado)}</select></div>
+    ${todos()?`<div><label>Empresa</label><select id="gEm"><option value="">Todas</option>${o(EMPRESAS.map(e=>[e.c,e.n]),gf.empresa)}</select></div>`:''}
+    <div><label>Centro</label><select id="gC"><option value="">Todos</option>${o(cs.map(c=>[c.c,c.n]),gf.centro)}</select></div>
+    <div style="flex:2"><label>Buscar</label><input id="gQ" value="${esc(gf.q)}" placeholder="ID, descripción, responsable…"></div>
+    <div style="flex:0"><button class="btn sec sm" id="gR" title="Actualizar">↻</button></div>
+    <div style="flex:0"><button class="btn sm" id="gX">Exportar Excel</button></div>
+   </div><div class="tw" id="gT"></div></div>`;
+  const re=()=>{gf.estado=$('#gE').value;gf.centro=$('#gC').value;gf.q=$('#gQ').value;tabla()};
+  $('#gE').onchange=re;$('#gC').onchange=re;$('#gQ').oninput=re;
+  $('#gA').onchange=()=>{gf.anio=$('#gA').value;vGestion()};$('#gR').onclick=()=>vGestion(true);
+  if($('#gEm'))$('#gEm').onchange=()=>{gf.empresa=$('#gEm').value;gf.centro='';vGestion()};
+  $('#gX').onclick=exportar;
+  tabla();
+}
+function tabla(){
+  const q=gf.q.toLowerCase(),hoy=today();
+  gRows=ST.reportes.filter(r=>{const e=estado(r);
+    if(gf.estado==='pend'?(e==='Cerrado'||e==='Anulado'):gf.estado&&e!==gf.estado)return false;
+    if(gf.empresa&&r.empresa!==gf.empresa)return false;if(gf.centro&&r.centro!==gf.centro)return false;
+    if(q&&!(r.id+' '+r.descripcion+' '+r.responsable+' '+r.area+' '+r.categoria).toLowerCase().includes(q))return false;return true});
+  const lim=gRows.slice(0,400);
+  $('#gT').innerHTML=gRows.length?`<div class="counter" style="margin-bottom:6px">${gRows.length} reportes${gRows.length>400?' · mostrando 400 (usa filtros o exporta)':''}</div>
+  <table><thead><tr><th>ID</th><th>Fecha</th><th>Centro</th><th>Tipo</th><th>Categoría</th><th>Riesgo</th><th>Responsable</th><th>Compromiso</th><th>Días</th><th>Estado</th></tr></thead><tbody>
+  ${lim.map(r=>{const e=estado(r);let d='';if(e==='Cerrado')d=`<span class="counter">${diff(r.fecha,r.fCierre)} d en cerrar</span>`;
+    else if(e==='Vencido')d=`<span class="counter bad">${diff(r.fCompromiso,hoy)} d vencido</span>`;else if(e!=='Anulado')d=`<span class="counter">${diff(r.fecha,hoy)} d abierto</span>`;
+    return`<tr class="click" data-id="${r.id}"><td><b>${r.id}</b>${r.tieneFoto?' 📷':''}</td><td>${fmt(r.fecha)}</td><td>${esc(cen(r.centro).n)}</td><td>${r.tipo}</td><td>${esc(r.categoria)}</td>
+    <td class="r-${r.riesgo}">${r.riesgo}</td><td>${esc(r.responsable)||'<span class="counter bad">Sin asignar</span>'}</td><td>${fmt(r.fCompromiso)}</td><td>${d}</td><td>${pill(e)}</td></tr>`}).join('')}
+  </tbody></table>`:`<div class="center" style="padding:30px">${tito('gracias',80)}<p class="sub">No hay reportes con estos filtros.</p></div>`;
+  $('#gT').querySelectorAll('tr.click').forEach(tr=>tr.onclick=()=>detalle(tr.dataset.id));
+}
+function csvDe(list){
+  const cols=[['id','ID'],['fecha','Fecha'],['hora','Hora'],['anio','Año'],['mes','Mes'],['empresaN','Empresa'],['centroN','Centro'],['tipo','Tipo'],['categoria','Categoría'],['riesgo','Riesgo'],['area','Lugar'],['descripcion','Descripción'],['medida','Medida inmediata'],['reportante','Reportante'],['vinculo','Vínculo'],['responsable','Responsable'],['fCompromiso','Fecha compromiso'],['accion','Acción'],['estadoV','Estado'],['fCierre','Fecha cierre'],['diasCierre','Días de cierre'],['oportuno','Cierre oportuno'],['cierreDesc','Evidencia de cierre'],['verificado','Verificado por'],['eficaz','Eficaz'],['motivoAnula','Motivo anulación'],['trazabilidad','Trazabilidad']];
+  const rows=list.map(r=>({...r,empresaN:emp(r.empresa),centroN:cen(r.centro).n,estadoV:estado(r),diasCierre:r.estado==='Cerrado'?diff(r.fecha,r.fCierre):'',oportuno:r.estado==='Cerrado'?(r.fCierre<=r.fCompromiso?'Sí':'No'):'',
+    trazabilidad:(r.hist||[]).map(h=>`${h.f} ${h.t}${h.u?' ('+h.u+')':''}`).join(' | ')}));
+  const cell=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';
+  return '﻿'+cols.map(c=>cell(c[1])).join(';')+'\n'+rows.map(r=>cols.map(c=>cell(r[c[0]])).join(';')).join('\n');
+}
+function exportar(){download(`ACIS_${gf.anio}_${today()}.csv`,csvDe(gRows),'text/csv;charset=utf-8')}
+async function detalle(id){
+  const r=ST.reportes.find(x=>x.id===id);if(!r)return;const c=cen(r.centro);const e=estado(r);const ed=puedeEditar(r.centro)&&r.estado!=='Anulado';
+  const dis=ed?'':'disabled';
+  $('#mbody').innerHTML=`<div class="mhead"><div><h2>${r.id}</h2><div>${pill(e)} <span class="r-${r.riesgo}">Riesgo ${r.riesgo}</span></div></div><button class="x" id="mx">×</button></div>
+   <div class="sec-t">1 · Reporte</div>
+   <dl class="dl"><dt>Centro / empresa</dt><dd>${esc(c.n)} · ${esc(emp(r.empresa))}</dd><dt>Fecha y hora</dt><dd>${fmt(r.fecha)} ${r.hora}</dd>
+   <dt>Tipo / categoría</dt><dd>${r.tipo} inseguro(a) · ${esc(r.categoria)}</dd><dt>Lugar</dt><dd>${esc(r.area)}</dd><dt>Descripción</dt><dd>${esc(r.descripcion)}</dd>
+   <dt>Medida inmediata</dt><dd>${esc(r.medida)||'—'}</dd><dt>Reportante</dt><dd>${esc(r.reportante)} (${esc(r.vinculo)})</dd></dl>
+   <div id="fotoR">${r.tieneFoto?'<div class="note">Cargando foto…</div>':''}</div>
+   <div class="sec-t">2 · Asignación y plan de acción</div>
+   <div class="row"><div><label>Responsable</label><input id="dR" value="${esc(r.responsable)}" ${dis}></div>
+   <div><label>Fecha compromiso</label><input type="date" id="dF" value="${r.fCompromiso}" ${dis}></div>
+   <div><label>Estado</label><select id="dE" ${dis}>${['Abierto','En gestión','Cerrado','Anulado'].map(x=>`<option ${x===r.estado?'selected':''}>${x}</option>`).join('')}</select></div></div>
+   <label>Acción correctiva / preventiva</label><textarea id="dA" ${dis}>${esc(r.accion)}</textarea>
+   <div id="anulaBox" class="${r.estado==='Anulado'?'':'hidden'}"><label>Motivo de anulación (duplicado, no aplica, prueba…)</label><input id="dMA" value="${esc(r.motivoAnula)}" ${dis}></div>
+   <div id="cierreBox" class="${r.estado==='Cerrado'?'':'hidden'}">
+    <div class="sec-t">3 · Cierre y verificación</div>
+    <div class="row"><div><label>Fecha de cierre</label><input type="date" id="dFC" value="${r.fCierre||today()}" max="${today()}" ${dis}></div>
+    <div><label>Verificado por (HSEQ)</label><input id="dV" value="${esc(r.verificado)}" ${dis}></div>
+    <div><label>¿Acción eficaz?</label><select id="dEf" ${dis}><option value="">—</option>${['Sí','No'].map(x=>`<option ${x===r.eficaz?'selected':''}>${x}</option>`).join('')}</select></div></div>
+    <label>Descripción del cierre / evidencia</label><textarea id="dCD" ${dis}>${esc(r.cierreDesc)}</textarea>
+    ${ed?'<label>Foto de evidencia de cierre</label><input type="file" id="dCF" accept="image/*" capture="environment">':''}
+    <div id="fotoC">${r.tieneFotoCierre?'<div class="note">Cargando evidencia…</div>':''}</div>
+   </div>
+   <div class="sec-t">Trazabilidad</div><div class="note">${(r.hist||[]).map(h=>`${fmt(h.f)} · ${esc(h.t)}${h.u?' · '+esc(h.u):''}`).join('<br>')}</div>
+   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="btn sec" id="mc">${ed?'Cancelar':'Cerrar'}</button>${ed?'<button class="btn" id="ms">Guardar</button>':''}</div>`;
+  $('#modal').classList.add('on');
+  const close=()=>$('#modal').classList.remove('on');$('#mx').onclick=close;$('#mc').onclick=close;
+  const foto=async(sfx,el)=>{try{const s=await getDoc(doc(db,'fotos',id+sfx));$(el).innerHTML=s.exists()?`<img class="ph" src="${s.data().data}" alt="Foto">`:''}catch(e){$(el).innerHTML=''}};
+  if(r.tieneFoto)foto('_r','#fotoR');if(r.tieneFotoCierre)foto('_c','#fotoC');
+  if(!ed)return;
+  $('#dE').onchange=()=>{$('#cierreBox').classList.toggle('hidden',$('#dE').value!=='Cerrado');$('#anulaBox').classList.toggle('hidden',$('#dE').value!=='Anulado')};
+  $('#ms').onclick=async()=>{const ne=$('#dE').value;
+    if(ne==='Cerrado'&&(!$('#dCD').value.trim()||!$('#dV').value.trim()))return toast('Para cerrar: describe la evidencia y quién verificó');
+    if(ne==='Anulado'&&!$('#dMA').value.trim())return toast('Indica el motivo de anulación');
+    if(ne!=='Abierto'&&ne!=='Anulado'&&!$('#dR').value.trim())return toast('Asigna un responsable');
+    if(!$('#dF').value)return toast('Define la fecha compromiso');
+    $('#ms').disabled=true;
+    const upd={responsable:$('#dR').value.trim(),fCompromiso:$('#dF').value,accion:$('#dA').value.trim(),estado:ne,
+      motivoAnula:ne==='Anulado'?$('#dMA').value.trim():'',fCierre:'',verificado:r.verificado||'',eficaz:r.eficaz||'',cierreDesc:r.cierreDesc||''};
+    if(ne==='Cerrado'){upd.fCierre=$('#dFC').value||today();upd.verificado=$('#dV').value.trim();upd.eficaz=$('#dEf').value;upd.cierreDesc=$('#dCD').value.trim()}
+    const ch=[];if(r.responsable!==upd.responsable)ch.push('Responsable: '+upd.responsable);if(r.fCompromiso!==upd.fCompromiso)ch.push('Compromiso: '+fmt(upd.fCompromiso));
+    if(r.estado!==ne)ch.push('Estado: '+ne);if(r.accion!==upd.accion)ch.push('Acción actualizada');if(!ch.length)ch.push('Actualización');
+    const h={f:today(),t:ch.join(' · '),u:ST.perfil.nombre||ST.user.email};
+    try{
+      const fileC=$('#dCF')&&$('#dCF').files[0];
+      if(ne==='Cerrado'&&fileC){const data=await compress(fileC);if(data){await setDoc(doc(db,'fotos',id+'_c'),{reporte:id,data});upd.tieneFotoCierre=true}}
+      await updateDoc(doc(db,'reportes',id),{...upd,hist:arrayUnion(h),actualizado:serverTimestamp()});
+      Object.assign(r,upd);r.hist=[...(r.hist||[]),h];close();toast('Reporte actualizado');tabla();
+    }catch(err){console.error(err);toast(errMsg(err));$('#ms').disabled=false}
+  };
+}
+
+/* ===================== DASHBOARD =====================
+   Los indicadores se calculan sobre filas agregadas (año/mes/centro/empresa):
+   - reportes vivos de la base (agregados aquí)
+   - reportes archivados en cierres trimestrales (colección resumenes)          */
+let df={anio:today().slice(0,4),mes:'',empresa:'',centro:''};const CH={};
+function agg(rs){const m={};
+  rs.forEach(r=>{if(r.estado==='Anulado')return;const k=r.anio+'|'+r.mes+'|'+r.centro+'|'+r.empresa;
+    const o=m[k]||(m[k]={anio:r.anio,mes:r.mes,centro:r.centro,empresa:r.empresa||'',n:0,actos:0,cond:0,cer:0,op:0,dias:0,efiSi:0,efiEval:0,ven:0,alto:0,cats:{},tr:{}});
+    o.n++;if(r.tipo==='Acto')o.actos++;else o.cond++;
+    o.cats[r.categoria]=(o.cats[r.categoria]||0)+1;const t=r.tipo+'|'+r.riesgo;o.tr[t]=(o.tr[t]||0)+1;
+    if(r.estado==='Cerrado'){o.cer++;if(r.fCierre<=r.fCompromiso)o.op++;o.dias+=diff(r.fecha,r.fCierre);if(r.eficaz){o.efiEval++;if(r.eficaz==='Sí')o.efiSi++}}
+    else{if(estado(r)==='Vencido')o.ven++;if(r.riesgo==='Alto')o.alto++}});
+  return Object.values(m)}
+function stats(rows){const s={n:0,actos:0,cond:0,cer:0,op:0,dias:0,efiSi:0,efiEval:0,ven:0,alto:0};rows.forEach(r=>{for(const k in s)s[k]+=r[k]||0});
+  s.ab=s.n-s.cer;s.pc=pct(s.cer,s.n);s.po=pct(s.op,s.cer);s.prom=s.cer?Math.round(s.dias/s.cer*10)/10:null;s.efi=pct(s.efiSi,s.efiEval);return s}
+function sumMap(rows,k){const o={};rows.forEach(r=>{for(const x in (r[k]||{}))o[x]=(o[x]||0)+r[k][x]});return o}
+function kpi(l,v,s,col){return`<div class="kpi" style="${col?'border-top-color:'+col:''}"><div class="l">${l}</div><div class="v" style="${col?'color:'+col:''}">${v}</div><div class="s">${s}</div></div>`}
+async function vDashboard(force){
+  $('#main').innerHTML=`<div class="loading">${tito('dashboard',80)}<br>Calculando indicadores…</div>`;
+  await Promise.all([loadReportes(df.anio,force),loadResumen(df.anio,force)]);
+  const anios=[];for(let y=+today().slice(0,4);y>=2026;y--)anios.push(String(y));
+  const o=(arr,sel)=>arr.map(([v,t])=>`<option value="${v}" ${v===sel?'selected':''}>${esc(t)}</option>`).join('');
+  const mine=misCentros();const centrosE=ST.cfg.centros.filter(c=>mine.includes(c.c)&&(!df.empresa||c.e===df.empresa));
+  const yearRows=[...ST.resumen,...agg(ST.reportes)].filter(r=>mine.includes(r.centro));
+  const base=yearRows.filter(r=>!df.mes||r.mes===df.mes);
+  const sel=r=>(!df.empresa||r.empresa===df.empresa)&&(!df.centro||r.centro===df.centro);
+  const fil=base.filter(sel);const s=stats(fil);
+  const scope=df.centro?centrosE.filter(c=>c.c===df.centro):centrosE;const trab=scope.reduce((a,c)=>a+(+c.t||0),0);
+  const alcance=df.centro?cen(df.centro).n:df.empresa?emp(df.empresa):todos()?'Nacional · Grupo ANAVA':'Mis centros';
+  const MT=M();
+  $('#main').innerHTML=`<div id="aviso"></div><div class="hero" style="margin-bottom:12px">${tito('dashboard',70)}<div><h2>Dashboard de gestión ACIS</h2><p class="sub" style="margin:0">${esc(alcance)} · ${(df.mes?MESES[+df.mes-1]+' ':'')+df.anio} · corte ${fmt(today())}</p></div>
+   <div class="noprint" style="margin-left:auto;display:flex;gap:6px"><button class="btn sec sm" id="dR">↻ Actualizar</button><button class="btn sec sm" id="dP">Imprimir / PDF</button></div></div>
+  <div class="card noprint" style="margin-bottom:14px"><div class="filters" style="margin:0">
+   <div><label>Año</label><select id="dA">${o(anios.map(a=>[a,a]),df.anio)}</select></div>
+   <div><label>Mes</label><select id="dM"><option value="">Todo el año</option>${o(MESES.map((m,i)=>[String(i+1).padStart(2,'0'),m]),df.mes)}</select></div>
+   ${todos()?`<div><label>Empresa</label><select id="dEm"><option value="">Nacional (todas)</option>${o(EMPRESAS.map(e=>[e.c,e.n]),df.empresa)}</select></div>`:''}
+   <div><label>Centro de trabajo</label><select id="dC"><option value="">Todos</option>${o(centrosE.map(c=>[c.c,c.n]),df.centro)}</select></div>
+  </div></div>
+  <div class="grid kpis">
+   ${kpi('Reportes',s.n,`${s.actos} actos · ${s.cond} condiciones`)}
+   ${kpi('% Gestión de cierre',s.pc==null?'—':s.pc+'%',`${s.cer} cerrados · meta ≥ ${MT.cierre}%`,sem(s.pc))}
+   ${kpi('% Cierre oportuno',s.po==null?'—':s.po+'%',`${s.op} dentro del plazo · meta ≥ ${MT.oportuno}%`,s.po==null?'#ccc':s.po>=MT.oportuno?'var(--ok)':s.po>=70?'var(--warn)':'var(--bad)')}
+   ${kpi('Abiertos vencidos',s.ven,`${s.ab} abiertos en total`,s.ven?'var(--bad)':'var(--ok)')}
+   ${kpi('Riesgo alto sin cerrar',s.alto,'Prioridad de gestión',s.alto?'var(--bad)':'var(--ok)')}
+   ${kpi('Días promedio de cierre',s.prom??'—','Del reporte al cierre')}
+   ${kpi('Índice de reporte',trab?(Math.round(s.n/trab*1000)/10):'—',trab?`Reportes × 100 trabajadores · ${trab} trab.`:'Registra trabajadores en Configuración')}
+   ${kpi('% Eficacia',s.efi==null?'—':s.efi+'%','Cierres verificados eficaces')}
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+   <div class="card"><h3>Tendencia mensual ${df.anio}</h3><div class="ch"><canvas id="c1"></canvas></div></div>
+   <div class="card"><h3>% Gestión de cierre por empresa</h3><div class="ch"><canvas id="c2"></canvas></div></div>
+   <div class="card"><h3>Reportes por categoría</h3><div class="ch"><canvas id="c3"></canvas></div></div>
+   <div class="card"><h3>Actos vs condiciones · nivel de riesgo</h3><div class="ch"><canvas id="c4"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Indicadores por centro de trabajo</h3><div class="tw" id="rank"></div></div>
+  <div class="card" style="margin-top:14px"><h3>Ficha de indicadores</h3><div class="note">
+   <b>% Gestión de cierre</b> = ACIS cerrados ÷ ACIS reportados en el periodo × 100 · meta ≥ ${MT.cierre}%.<br>
+   <b>% Cierre oportuno</b> = ACIS cerrados en o antes de la fecha compromiso ÷ ACIS cerrados × 100 · meta ≥ ${MT.oportuno}%.<br>
+   <b>Abiertos vencidos</b> = ACIS no cerrados con fecha compromiso anterior a hoy.<br>
+   <b>Plazos de cierre según riesgo</b>: Alto ${P().Alto} · Medio ${P().Medio} · Bajo ${P().Bajo} días calendario.<br>
+   <b>Índice de reporte</b> = ACIS reportados ÷ trabajadores del alcance × 100 (participación).<br>
+   Incluye los reportes archivados en los cierres trimestrales. Los anulados (duplicados, pruebas) no cuentan. El periodo filtra por fecha de reporte.<br>
+   Semáforo: <span class="sem" style="background:var(--ok)"></span>≥ meta · <span class="sem" style="background:var(--warn)"></span>70 % a meta · <span class="sem" style="background:var(--bad)"></span>&lt; 70 %.<br>
+   Referencias: Decreto 1072 de 2015 (arts. 2.2.4.6.10, 2.2.4.6.12 y 2.2.4.6.33), Resolución 0312 de 2019, ISO 45001:2018 cláusulas 5.4 y 10.2.
+  </div></div>`;
+  $('#dA').onchange=()=>{df.anio=$('#dA').value;vDashboard()};$('#dM').onchange=()=>{df.mes=$('#dM').value;vDashboard()};
+  if($('#dEm'))$('#dEm').onchange=()=>{df.empresa=$('#dEm').value;df.centro='';vDashboard()};
+  $('#dC').onchange=()=>{df.centro=$('#dC').value;vDashboard()};$('#dR').onclick=()=>vDashboard(true);$('#dP').onclick=()=>window.print();
+  const rk=centrosE.map(c=>({c,s:stats(base.filter(r=>r.centro===c.c))})).filter(x=>x.s.n||x.c.act).sort((a,b)=>(b.s.pc??-1)-(a.s.pc??-1));
+  $('#rank').innerHTML=`<table><thead><tr><th>Centro</th><th>Empresa</th><th>Reportes</th><th>Actos</th><th>Cond.</th><th>Cerrados</th><th>Abiertos</th><th>Vencidos</th><th>% Cierre</th><th>% Oportuno</th><th>Días prom.</th><th>Índice rep.</th></tr></thead><tbody>
+   ${rk.map(({c,s})=>`<tr class="click" data-c="${c.c}" style="${c.c===df.centro?'background:#fff5f5':''}"><td><span class="sem" style="background:${sem(s.pc)}"></span><b>${esc(c.n)}</b></td><td>${esc(emp(c.e))}</td>
+   <td>${s.n}</td><td>${s.actos}</td><td>${s.cond}</td><td>${s.cer}</td><td>${s.ab}</td><td style="${s.ven?'color:var(--bad);font-weight:700':''}">${s.ven}</td>
+   <td><b>${s.pc==null?'—':s.pc+'%'}</b></td><td>${s.po==null?'—':s.po+'%'}</td><td>${s.prom??'—'}</td><td>${c.t?Math.round(s.n/c.t*1000)/10:'—'}</td></tr>`).join('')}</tbody></table>`;
+  $('#rank').querySelectorAll('tr.click').forEach(tr=>tr.onclick=()=>{df.centro=tr.dataset.c;if(todos())df.empresa=cen(tr.dataset.c).e;vDashboard();window.scrollTo(0,0)});
+  charts(fil,base,yearRows.filter(sel));
+  if(isAdmin())avisoCierre().then(h=>{const el=$('#aviso');if(el&&h)el.innerHTML=h}).catch(()=>{});
+}
+function charts(fil,base,yr){
+  if(typeof Chart==='undefined'){document.querySelectorAll('.ch').forEach(x=>x.innerHTML='<div class="note">No se pudo cargar la librería de gráficos.</div>');return}
+  Object.values(CH).forEach(c=>c.destroy());Chart.defaults.font.family='Montserrat';Chart.defaults.font.size=11;Chart.defaults.color='#4D4D4D';
+  const pm=MESES.map((_,i)=>stats(yr.filter(r=>+r.mes===i+1)));
+  CH.c1=new Chart($('#c1'),{data:{labels:MESES,datasets:[
+    {type:'bar',label:'Reportados',data:pm.map(s=>s.n),backgroundColor:'#CCCCCC',borderRadius:4,yAxisID:'y'},
+    {type:'bar',label:'Cerrados',data:pm.map(s=>s.cer),backgroundColor:'#940000',borderRadius:4,yAxisID:'y'},
+    {type:'line',label:'% cierre',data:pm.map(s=>s.pc),borderColor:'#F30000',backgroundColor:'#F30000',tension:.3,yAxisID:'y1',spanGaps:true}]},
+    options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},
+      scales:{y:{beginAtZero:true,grid:{color:'#eee'}},y1:{position:'right',min:0,max:100,grid:{display:false},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+  const es=EMPRESAS.map(e=>({e,s:stats(base.filter(r=>r.empresa===e.c))})).filter(x=>x.s.n);
+  CH.c2=new Chart($('#c2'),{type:'bar',data:{labels:es.map(x=>x.e.n.replace(' S.A.S.','')),datasets:[{label:'% cierre',data:es.map(x=>x.s.pc),backgroundColor:es.map(x=>x.e.c===df.empresa?'#F30000':'#940000'),borderRadius:4}]},
+    options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:c=>`${es[c.dataIndex].s.cer} de ${es[c.dataIndex].s.n} reportes`}}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#eee'}},y:{grid:{display:false}}}}});
+  const cm=sumMap(fil,'cats');const cats=Object.entries(cm).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]);
+  CH.c3=new Chart($('#c3'),{type:'bar',data:{labels:cats.map(x=>x[0]),datasets:[{label:'Reportes',data:cats.map(x=>x[1]),backgroundColor:'#4F0000',borderRadius:4}]},
+    options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'#eee'}},y:{grid:{display:false},ticks:{autoSkip:false}}}}});
+  const tm=sumMap(fil,'tr');const R=['Alto','Medio','Bajo'],col={Alto:'#d11a1a',Medio:'#e0a100',Bajo:'#1f8a4c'};
+  CH.c4=new Chart($('#c4'),{type:'bar',data:{labels:['Actos inseguros','Condiciones inseguras'],datasets:R.map(k=>({label:k,data:['Acto','Condición'].map(t=>tm[t+'|'+k]||0),backgroundColor:col[k],borderRadius:3}))},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{color:'#eee'}}}}});
+}
+
+/* ===================== QR ===================== */
+const baseUrl=()=>location.origin+location.pathname;
+function vQR(){
+  const cs=ST.cfg.centros.filter(c=>c.act);
+  $('#main').innerHTML=`<div class="hero noprint" style="margin-bottom:12px">${tito('qr',70)}<div><h2>Códigos QR por centro de trabajo</h2><p class="sub" style="margin:0">Cada QR abre el formulario con el centro ya seleccionado. Descarga uno o imprime todos los afiches.</p></div>
+   <div style="margin-left:auto"><button class="btn" id="pAll">Imprimir todos</button></div></div>
+   <div class="qrg">${cs.map(c=>`<div class="qrc"><span class="tq">${tito('qr',54,'')}</span><div class="n">${esc(c.n)}</div><div class="e">${esc(emp(c.e))}</div><div class="q" id="q-${c.c}"></div>
+   <div style="font-weight:800;color:var(--r2)">¿Viste un acto o condición insegura?</div><div class="e">Escanea y repórtalo · puede ser anónimo</div><div class="u">${esc(baseUrl())}#reportar-${c.c}</div>
+   <div class="noprint"><button class="btn sm sec" data-d="${c.c}">Descargar PNG</button> <a class="btn sm sec" href="#reportar-${c.c}" target="_blank">Probar</a></div></div>`).join('')}</div>`;
+  cs.forEach(c=>{const el=$('#q-'+c.c);if(typeof QRCode!=='undefined')new QRCode(el,{text:baseUrl()+'#reportar-'+c.c,width:170,height:170,colorDark:'#4F0000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})});
+  $('#pAll').onclick=()=>window.print();
+  $('#main').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>afiche(cen(b.dataset.d)));
+}
+function afiche(c){
+  const src=$('#q-'+c.c+' canvas');if(!src)return toast('QR no disponible');
+  const W=900,H=1200,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,'#4F0000');g.addColorStop(.6,'#940000');g.addColorStop(1,'#F30000');
+  x.fillStyle=g;x.fillRect(0,0,W,170);x.fillStyle='#fff';x.textAlign='center';x.font='800 46px Montserrat, Arial';x.fillText('REPORTA ACIS',W/2,85);
+  x.font='500 26px Montserrat, Arial';x.fillText('Actos y Condiciones Inseguras',W/2,130);
+  x.fillStyle='#231f1e';x.font='800 40px Montserrat, Arial';x.fillText(c.n,W/2,250);x.fillStyle='#6b6461';x.font='500 24px Montserrat, Arial';x.fillText(emp(c.e),W/2,292);
+  x.imageSmoothingEnabled=false;x.drawImage(src,W/2-260,340,520,520);
+  x.fillStyle='#940000';x.font='700 30px Montserrat, Arial';x.fillText('Escanea con la cámara de tu celular',W/2,920);
+  x.fillStyle='#4D4D4D';x.font='500 24px Montserrat, Arial';x.fillText('Toma 1 minuto · puede ser anónimo',W/2,962);
+  x.fillStyle='#F30000';x.fillRect(0,H-90,W,90);x.fillStyle='#fff';x.font='700 26px Montserrat, Arial';x.fillText('TITO HSEQ · by ANAVA — Reportar también es cuidarnos',W/2,H-38);
+  const draw=img=>{try{x.drawImage(img,40,980,150,170)}catch(e){};cv.toBlob(b=>download(`QR_ACIS_${c.c}.png`,b),'image/png')};
+  const img=new Image();img.onload=()=>draw(img);img.onerror=()=>{const s=new Image();s.onload=()=>draw(s);s.onerror=()=>cv.toBlob(b=>download(`QR_ACIS_${c.c}.png`,b),'image/png');
+    s.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(document.getElementById('tito-svg').outerHTML.replace('<symbol','<svg xmlns="http://www.w3.org/2000/svg"').replace('</symbol>','</svg>'))};img.src=TITO.qr;
+}
+
+/* ===================== CIERRES TRIMESTRALES =====================
+   1) Respaldo ZIP (Excel + JSON + fotos)  2) Resumen de indicadores en Firestore
+   3) Borrado de reportes cerrados/anulados y sus fotos. Los abiertos siguen vivos. */
+function trimAnterior(){const d=today();let y=+d.slice(0,4),q=Math.ceil(+d.slice(5,7)/3)-1;if(q===0){q=4;y--}return{y,q,label:`T${q}-${y}`,fin:`${y}-${QF[q-1]}`}}
+function trimestres(n=6){const out=[];let {y,q}=trimAnterior();for(let i=0;i<n;i++){out.push({label:`T${q}-${y}`,fin:`${y}-${QF[q-1]}`});q--;if(q===0){q=4;y--}if(y<2026)break}return out}
+async function leerCierres(){const s=await getDocs(collection(db,'cierres'));const cs=[];s.forEach(d=>cs.push({id:d.id,...d.data()}));cs.sort((a,b)=>(b.id).localeCompare(a.id));return cs}
+async function avisoCierre(){
+  const umbral=ST.cfg.umbral||2500;const n=(await getCountFromServer(collection(db,'reportes'))).data().count;
+  const tA=trimAnterior();const cs=await leerCierres();
+  const enCurso=cs.find(c=>c.estado==='en curso');
+  const hecho=cs.some(c=>c.estado==='completado'&&c.fin>=tA.fin);
+  let pend=false;if(!hecho){pend=(await getCountFromServer(query(collection(db,'reportes'),where('fecha','<=',tA.fin)))).data().count>0}
+  const msgs=[];
+  if(enCurso)msgs.push(['bad',`Hay un cierre sin terminar (${esc(enCurso.label)}). Entra a Cierres y presiona «Reanudar».`]);
+  if(n>=umbral)msgs.push(['bad',`La base tiene ${n} reportes y superó el límite de ${umbral}. Haz un cierre extraordinario.`]);
+  else if(n>=umbral*.8)msgs.push(['warn',`La base tiene ${n} de ${umbral} reportes (${Math.round(n/umbral*100)} %). Programa el cierre pronto.`]);
+  if(pend)msgs.push(['warn',`El trimestre ${tA.label} terminó el ${fmt(tA.fin)} y su cierre está pendiente.`]);
+  if(!msgs.length)return'';
+  return msgs.map(([t,m])=>`<div class="card noprint" style="margin-bottom:10px;display:flex;gap:12px;align-items:center;border-left:5px solid var(--${t})">${tito('alerta',46,'')}<div style="flex:1;font-weight:600">${m}</div><a class="btn sm" href="#cierres">Ir a Cierres</a></div>`).join('');
+}
+async function vCierres(){
+  $('#main').innerHTML=`<div class="loading">${tito('gestion',80)}<br>Revisando la base…</div>`;
+  const umbral=ST.cfg.umbral||2500;const n=(await getCountFromServer(collection(db,'reportes'))).data().count;const cs=await leerCierres();
+  const tA=trimAnterior();const ult=cs.find(c=>c.estado==='completado');const p=Math.min(100,Math.round(n/umbral*100));
+  const col=n>=umbral?'var(--bad)':n>=umbral*.8?'var(--warn)':'var(--ok)';
+  $('#main').innerHTML=`<div class="hero" style="margin-bottom:12px">${tito('gestion',70)}<div><h2>Cierres trimestrales</h2><p class="sub" style="margin:0">Cada trimestre (o al acercarse al límite) se descarga un respaldo completo y se liberan de la base los reportes cerrados y anulados. Los indicadores históricos se conservan en el dashboard; los reportes abiertos siguen en gestión.</p></div></div>
+  <div class="grid kpis">
+   ${kpi('Reportes en la base',n,`Límite de cierre: ${umbral}`,col)}
+   ${kpi('Uso',p+'%',`<div style="height:6px;background:#eee;border-radius:3px;margin-top:4px"><div style="height:6px;width:${p}%;background:${col};border-radius:3px"></div></div>`,col)}
+   ${kpi('Último cierre',ult?esc(ult.label):'—',ult?`${fmt(ult.fecha)} · ${ult.reportes} reportes`:'Aún no se ha hecho ninguno')}
+   ${kpi('Próximo cierre sugerido',tA.label,`Corte al ${fmt(tA.fin)}`)}
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Nuevo cierre</h3>
+   <div class="row"><div><label>Periodo a cerrar</label><select id="kT">${trimestres().map(t=>`<option value="${t.fin}|${t.label}">${t.label} · reportes hasta ${fmt(t.fin)}</option>`).join('')}<option value="${today()}|EXT-${today()}">Extraordinario · reportes hasta hoy</option></select></div>
+   <div><label>&nbsp;</label><button class="btn" id="kP">Preparar cierre</button></div></div>
+   <p class="note">Se incluyen todos los reportes <b>cerrados o anulados</b> con fecha de reporte hasta el corte (también los de trimestres anteriores que se cerraron tarde). Los abiertos y en gestión no se tocan.</p>
+   <div id="kBox"></div></div>
+  <div class="card" style="margin-top:14px"><h3>Historial de cierres</h3><div class="tw"><table><thead><tr><th>Periodo</th><th>Fecha</th><th>Realizado por</th><th>Reportes</th><th>Fotos</th><th>Estado</th><th></th></tr></thead><tbody>
+   ${cs.map(c=>`<tr><td><b>${esc(c.label)}</b></td><td>${fmt(c.fecha)}</td><td>${esc(c.usuario)}</td><td>${c.reportes}</td><td>${c.fotos}</td><td>${c.estado==='completado'?pill('Cerrado').replace('Cerrado','Completado'):pill('Vencido').replace('Vencido','Sin terminar')}</td>
+   <td>${c.estado==='en curso'?`<button class="btn sm" data-re="${c.id}">Reanudar</button>`:''}</td></tr>`).join('')||'<tr><td colspan="7" class="note">Sin cierres todavía.</td></tr>'}</tbody></table></div>
+   <div class="sec-t">Límite de alerta</div><div class="row"><div><label>Reportes en base para alertar (se avisa desde el 80 %)</label><input type="number" id="kU" min="500" value="${umbral}"></div><div><label>&nbsp;</label><button class="btn sec" id="kUS">Guardar límite</button></div></div></div>`;
+  $('#kUS').onclick=()=>saveCfg({...ST.cfg,umbral:+$('#kU').value||2500});
+  $('#kP').onclick=()=>{const [fin,label]=$('#kT').value.split('|');preparar(fin,label)};
+  $('#main').querySelectorAll('button[data-re]').forEach(b=>b.onclick=async()=>{const c=cs.find(x=>x.id===b.dataset.re);b.disabled=true;
+    try{await borrar(c.id,c.ids||[],c.fotosIds||[],t=>b.textContent=t);toast('Cierre completado');invalidar();vCierres()}catch(e){toast(errMsg(e));b.disabled=false}});
+}
+async function preparar(fin,label){
+  const box=$('#kBox');box.innerHTML='<div class="loading">Buscando reportes…</div>';
+  try{
+    const s=await getDocs(query(collection(db,'reportes'),where('estado','in',['Cerrado','Anulado'])));const rs=[];s.forEach(d=>{const r=d.data();if(r.fecha<=fin)rs.push(r)});
+    rs.sort((a,b)=>a.id.localeCompare(b.id));
+    const nf=rs.reduce((a,r)=>a+(r.tieneFoto?1:0)+(r.tieneFotoCierre?1:0),0);
+    if(!rs.length){box.innerHTML=`<div class="center" style="padding:20px">${tito('gracias',70)}<p class="sub">No hay reportes cerrados o anulados hasta el ${fmt(fin)}. Nada que archivar.</p></div>`;return}
+    const cer=rs.filter(r=>r.estado==='Cerrado').length;
+    box.innerHTML=`<div class="sec-t">Cierre ${esc(label)}</div>
+     <p><b>${rs.length}</b> reportes a archivar (${cer} cerrados · ${rs.length-cer} anulados) · <b>${nf}</b> fotos.</p>
+     <p><b>Paso 1.</b> Descarga el respaldo y guárdalo en la carpeta HSEQ de SharePoint (retención según la tabla del CQ-P-01).</p>
+     <button class="btn" id="kZ">Descargar respaldo ZIP</button> <span class="counter" id="kZs"></span>
+     <div id="k2" style="opacity:.4;pointer-events:none;margin-top:14px">
+      <p><b>Paso 2.</b> Archivar y liberar espacio. Esta acción borra los reportes de la base y <b>no se puede deshacer</b>; sus indicadores quedan en el dashboard.</p>
+      <label class="chips"><label><input type="checkbox" id="kOk"> Confirmo que guardé el respaldo y lo abrí correctamente</label></label>
+      <label>Escribe <b>${esc(label)}</b> para confirmar</label><input id="kTx" autocomplete="off">
+      <div style="margin-top:10px"><button class="btn" id="kA">Archivar y liberar espacio</button> <span class="counter" id="kAs"></span></div></div>`;
+    $('#kZ').onclick=async()=>{$('#kZ').disabled=true;try{await respaldo(rs,label,fin,t=>$('#kZs').textContent=t);$('#kZs').textContent='Respaldo descargado ✔';const k=$('#k2');k.style.opacity=1;k.style.pointerEvents='auto'}catch(e){console.error(e);toast('No se pudo generar el respaldo: '+errMsg(e));$('#kZ').disabled=false}};
+    $('#kA').onclick=async()=>{if(!$('#kOk').checked)return toast('Confirma que guardaste el respaldo');if($('#kTx').value.trim()!==label)return toast(`Escribe exactamente ${label}`);
+      $('#kA').disabled=true;try{await archivar(rs,label,fin,t=>$('#kAs').textContent=t);toast('Cierre completado. Base liberada');invalidar();vCierres()}catch(e){console.error(e);toast(errMsg(e)+'. Usa «Reanudar» en el historial',5000);vCierres()}};
+  }catch(e){console.error(e);box.innerHTML=`<p class="counter bad">${esc(errMsg(e))}</p>`}
+}
+async function respaldo(rs,label,fin,prog){
+  if(typeof JSZip==='undefined')throw new Error('No cargó la librería ZIP');
+  const z=new JSZip();const plano=r=>{const o={...r};for(const k of ['creado','actualizado'])if(o[k]&&o[k].toDate)o[k]=o[k].toDate().toISOString();return o};
+  z.file(`ACIS_${label}.csv`,csvDe(rs));z.file(`ACIS_${label}.json`,JSON.stringify(rs.map(plano),null,1));
+  const filas=agg(rs);const cols=['anio','mes','centro','empresa','n','actos','cond','cer','op','dias','efiSi','efiEval'];
+  z.file(`Resumen_indicadores_${label}.csv`,'﻿'+['Año','Mes','Centro','Empresa','Reportes','Actos','Condiciones','Cerrados','Cierre oportuno','Suma días cierre','Eficaces','Con evaluación de eficacia'].join(';')+'\n'+filas.map(f=>cols.map(c=>c==='centro'?cen(f.centro).n:c==='empresa'?emp(f.empresa):f[c]).join(';')).join('\n'));
+  const fotos=[];rs.forEach(r=>{if(r.tieneFoto)fotos.push([r.id+'_r',r.id+'_reporte.jpg']);if(r.tieneFotoCierre)fotos.push([r.id+'_c',r.id+'_cierre.jpg'])});
+  let i=0,falt=0;for(const [fid,name] of fotos){i++;prog(`Descargando fotos ${i}/${fotos.length}…`);
+    try{const s=await getDoc(doc(db,'fotos',fid));if(s.exists()){const d=s.data().data||'';z.file('fotos/'+name,d.slice(d.indexOf(',')+1),{base64:true})}else falt++}catch(e){falt++}}
+  z.file('LEEME.txt',`TITO HSEQ · Reporte ACIS — Respaldo de cierre ${label}\r\nCorte: reportes cerrados o anulados con fecha hasta ${fin}\r\nGenerado: ${new Date().toLocaleString('es-CO')} por ${ST.perfil.nombre||ST.user.email}\r\nReportes: ${rs.length} · Fotos: ${fotos.length-falt}${falt?` (${falt} no encontradas)`:''}\r\n\r\nContenido:\r\n- ACIS_${label}.csv: abrir con Excel (separador punto y coma)\r\n- ACIS_${label}.json: datos completos para restaurar o auditar\r\n- Resumen_indicadores_${label}.csv: totales por año, mes y centro\r\n- fotos/: evidencias del reporte y del cierre, nombradas por ID\r\n`);
+  prog('Comprimiendo…');const blob=await z.generateAsync({type:'blob',compression:'DEFLATE'});
+  download(`Respaldo_ACIS_${label}_${today()}.zip`,blob);
+}
+async function archivar(rs,label,fin,prog){
+  const cid='C'+Date.now();const filas=agg(rs);const anios=[...new Set(filas.map(f=>f.anio))];
+  const ids=rs.map(r=>r.id);const fotos=[];rs.forEach(r=>{if(r.tieneFoto)fotos.push(r.id+'_r');if(r.tieneFotoCierre)fotos.push(r.id+'_c')});
+  prog('Guardando resumen de indicadores…');
+  const b=writeBatch(db);
+  b.set(doc(db,'resumenes',cid),{cierre:cid,label,fin,anios,filas});
+  b.set(doc(db,'cierres',cid),{label,fin,fecha:today(),usuario:ST.perfil.nombre||ST.user.email,reportes:ids.length,fotos:fotos.length,ids,fotosIds:fotos,estado:'en curso',creado:serverTimestamp()});
+  await b.commit();
+  await borrar(cid,ids,fotos,prog);
+}
+async function borrar(cid,ids,fotos,prog){
+  const refs=[...fotos.map(f=>doc(db,'fotos',f)),...ids.map(i=>doc(db,'reportes',i))];
+  for(let i=0;i<refs.length;i+=400){prog(`Liberando espacio ${Math.min(i+400,refs.length)}/${refs.length}…`);const b=writeBatch(db);refs.slice(i,i+400).forEach(r=>b.delete(r));await b.commit()}
+  await updateDoc(doc(db,'cierres',cid),{estado:'completado',terminado:serverTimestamp()});
+}
+
+/* ===================== CONFIGURACIÓN ===================== */
+function vConfig(){
+  const C=ST.cfg;
+  $('#main').innerHTML=`<h2>Configuración</h2><p class="sub">Centros de trabajo, empresa, número de trabajadores (índice de reporte), responsable por defecto, lugares que aparecen en el QR de cada centro, plazos y metas. Si dejas vacíos los lugares, se usa la lista general: ${esc(AREAS_DEF.join(', '))}.</p>
+  <div class="card" style="margin-bottom:14px"><h3>Plazos de cierre (días) y metas (%)</h3><div class="row">
+   <div><label>Riesgo alto</label><input type="number" min="1" id="pA" value="${C.plazos.Alto}"></div><div><label>Riesgo medio</label><input type="number" min="1" id="pM" value="${C.plazos.Medio}"></div>
+   <div><label>Riesgo bajo</label><input type="number" min="1" id="pB" value="${C.plazos.Bajo}"></div><div><label>Meta % cierre</label><input type="number" min="0" max="100" id="mC" value="${C.metas.cierre}"></div>
+   <div><label>Meta % oportuno</label><input type="number" min="0" max="100" id="mO" value="${C.metas.oportuno}"></div></div></div>
+  <div class="card"><h3>Centros de trabajo</h3><div class="tw"><table><thead><tr><th>Código</th><th>Centro</th><th>Empresa</th><th>Trabajadores</th><th>Responsable por defecto</th><th>Lugares / áreas del QR</th><th>Activo</th></tr></thead><tbody id="cT">
+  ${C.centros.map((c,i)=>`<tr><td><b>${c.c}</b></td><td><input data-i="${i}" data-k="n" value="${esc(c.n)}"></td>
+   <td><select data-i="${i}" data-k="e">${EMPRESAS.map(e=>`<option value="${e.c}" ${e.c===c.e?'selected':''}>${esc(e.n)}</option>`).join('')}</select></td>
+   <td><input type="number" min="0" data-i="${i}" data-k="t" value="${c.t||0}" style="width:90px"></td><td><input data-i="${i}" data-k="resp" value="${esc(c.resp)}"></td><td><textarea data-i="${i}" data-k="areas" rows="2" style="min-width:220px;min-height:44px;font-size:12px" placeholder="Vacío = lista general">${esc((c.areas||[]).join(', '))}</textarea></td>
+   <td><input type="checkbox" data-i="${i}" data-k="act" ${c.act?'checked':''} style="width:auto"></td></tr>`).join('')}</tbody></table></div>
+  <div class="sec-t">Agregar centro</div><div class="row"><div><label>Código (3-4 letras, no se puede cambiar)</label><input id="nC" maxlength="4"></div><div><label>Nombre</label><input id="nN"></div>
+   <div><label>Empresa</label><select id="nE">${EMPRESAS.map(e=>`<option value="${e.c}">${esc(e.n)}</option>`).join('')}</select></div><div><label>&nbsp;</label><button class="btn sec" id="nAdd">Agregar</button></div></div>
+  <div style="margin-top:16px;text-align:right"><button class="btn" id="cSave">Guardar configuración</button></div></div>
+  <p class="note">Cambiar la empresa de un centro aplica a los reportes nuevos; los anteriores conservan la empresa con la que se registraron. Versión ${VERSION}.</p>`;
+  const draft=JSON.parse(JSON.stringify(C));
+  $('#cT').querySelectorAll('[data-i]').forEach(el=>el.onchange=()=>{const c=draft.centros[+el.dataset.i];const k=el.dataset.k;c[k]=k==='act'?el.checked:k==='t'?+el.value:k==='areas'?el.value.split(',').map(x=>x.trim()).filter(Boolean):el.value});
+  $('#nAdd').onclick=()=>{const c=$('#nC').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');const n=$('#nN').value.trim();
+    if(c.length<2||!n)return toast('Código y nombre son obligatorios');if(draft.centros.some(x=>x.c===c))return toast('Ese código ya existe');
+    draft.centros.push({c,n,e:$('#nE').value,t:0,resp:'HSEQ del centro',act:true});ST.cfg=draft;saveCfg(draft).then(vConfig)};
+  $('#cSave').onclick=()=>{draft.plazos={Alto:+$('#pA').value||3,Medio:+$('#pM').value||10,Bajo:+$('#pB').value||20};draft.metas={cierre:+$('#mC').value||90,oportuno:+$('#mO').value||85};saveCfg(draft)};
+}
+async function saveCfg(d){try{await setDoc(doc(db,'config','general'),d);ST.cfg=d;toast('Configuración guardada')}catch(e){toast(errMsg(e))}}
+
+/* ===================== USUARIOS ===================== */
+async function vUsuarios(){
+  $('#main').innerHTML='<div class="loading">Cargando usuarios…</div>';
+  const s=await getDocs(collection(db,'usuarios'));const us=[];s.forEach(d=>us.push({uid:d.id,...d.data()}));us.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  const chips=(sel,id)=>`<div class="chips" id="${id}"><label><input type="checkbox" value="*" ${sel.includes('*')?'checked':''}> Todos (nacional)</label>${ST.cfg.centros.map(c=>`<label><input type="checkbox" value="${c.c}" ${sel.includes(c.c)?'checked':''}> ${esc(c.n)}</label>`).join('')}</div>`;
+  const val=id=>[...document.querySelectorAll('#'+id+' input:checked')].map(x=>x.value);
+  $('#main').innerHTML=`<h2>Usuarios gestores</h2><p class="sub"><b>Administrador:</b> todo · <b>Gestor:</b> gestiona y cierra ACIS de sus centros · <b>Consulta:</b> solo ve gestión y dashboard de sus centros (gerentes, directores). Los reportantes no necesitan usuario.</p>
+  <div class="card" style="margin-bottom:14px"><h3>Crear usuario</h3><div class="row"><div><label>Nombre</label><input id="uN"></div><div><label>Correo</label><input id="uE" type="email"></div>
+   <div><label>Contraseña temporal (mín. 8)</label><input id="uP" type="text"></div><div><label>Rol</label><select id="uR"><option value="gestor">Gestor</option><option value="consulta">Consulta</option><option value="admin">Administrador</option></select></div></div>
+   <label>Centros</label>${chips([],'uC')}<div style="margin-top:12px"><button class="btn" id="uAdd">Crear usuario</button></div></div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Centros</th><th>Activo</th><th></th></tr></thead><tbody>
+  ${us.map(u=>`<tr><td>${esc(u.nombre)}</td><td>${esc(u.email)}</td><td>${esc(u.rol)}</td><td class="note">${(u.centros||[]).includes('*')?'Todos':(u.centros||[]).map(c=>esc(cen(c).n)).join(', ')}</td><td>${u.activo!==false?'Sí':'No'}</td>
+   <td><button class="btn sm sec" data-u="${u.uid}">Editar</button></td></tr>`).join('')||'<tr><td colspan="6" class="note">Aún no hay usuarios.</td></tr>'}</tbody></table></div></div>`;
+  $('#uAdd').onclick=async()=>{const n=$('#uN').value.trim(),e=$('#uE').value.trim().toLowerCase(),p=$('#uP').value,r=$('#uR').value,cs=val('uC');
+    if(!n||!e||p.length<8)return toast('Nombre, correo y contraseña (mín. 8) son obligatorios');if(r!=='admin'&&!cs.length)return toast('Asigna al menos un centro');
+    $('#uAdd').disabled=true;
+    try{const sec=initializeApp(FIREBASE_CONFIG,'sec-'+Date.now());const sa=getAuth(sec);const cr=await createUserWithEmailAndPassword(sa,e,p);const uid=cr.user.uid;await signOut(sa);
+      await setDoc(doc(db,'usuarios',uid),{nombre:n,email:e,rol:r,centros:r==='admin'?['*']:cs,activo:true,creado:serverTimestamp()});
+      toast('Usuario creado. Comparte el correo y la contraseña temporal');vUsuarios()}
+    catch(err){toast(err.code==='auth/email-already-in-use'?'Ese correo ya tiene cuenta':errMsg(err));$('#uAdd').disabled=false}};
+  $('#main').querySelectorAll('button[data-u]').forEach(b=>b.onclick=()=>{const u=us.find(x=>x.uid===b.dataset.u);
+    $('#mbody').innerHTML=`<div class="mhead"><h2>${esc(u.nombre)}</h2><button class="x" id="mx">×</button></div><p class="sub">${esc(u.email)}</p>
+     <div class="row"><div><label>Nombre</label><input id="eN" value="${esc(u.nombre)}"></div><div><label>Rol</label><select id="eR">${['gestor','consulta','admin'].map(x=>`<option ${x===u.rol?'selected':''}>${x}</option>`).join('')}</select></div>
+     <div><label>Activo</label><select id="eA"><option value="1" ${u.activo!==false?'selected':''}>Sí</option><option value="0" ${u.activo===false?'selected':''}>No (bloquear acceso)</option></select></div></div>
+     <label>Centros</label>${chips(u.centros||[],'eC')}
+     <div style="display:flex;gap:8px;justify-content:space-between;margin-top:16px"><button class="btn sec" id="eRst">Enviar restablecer contraseña</button><button class="btn" id="eS">Guardar</button></div>`;
+    $('#modal').classList.add('on');$('#mx').onclick=()=>$('#modal').classList.remove('on');
+    $('#eRst').onclick=async()=>{try{await sendPasswordResetEmail(auth,u.email);toast('Correo de restablecimiento enviado')}catch(e){toast(errMsg(e))}};
+    $('#eS').onclick=async()=>{const r=$('#eR').value;try{await updateDoc(doc(db,'usuarios',u.uid),{nombre:$('#eN').value.trim(),rol:r,activo:$('#eA').value==='1',centros:r==='admin'?['*']:val('eC')});
+      $('#modal').classList.remove('on');toast('Usuario actualizado');vUsuarios()}catch(e){toast(errMsg(e))}};
+  });
+}
+
+/* ===================== ARRANQUE ===================== */
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').classList.remove('on')});
+window.addEventListener('hashchange',route);
+if(CONFIGURED){let first=true;onAuthStateChanged(auth,async u=>{ST.user=u;try{await loadPerfil(u)}catch(e){ST.perfil=null}
+  if(first){first=false;route()}else if(!u||u.isAnonymous){nav()}})}else route();
+</script>
+</body>
+</html>

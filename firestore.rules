@@ -1,0 +1,112 @@
+rules_version = '2';
+// TITO HSEQ · Reporte ACIS — Reglas de seguridad de Cloud Firestore
+// Reemplaza hseq@anava.com por el correo de la administradora principal (en minúsculas).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isSuper() {
+      return signedIn() && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'hseq@anava.com';
+    }
+    function perfilPath() { return /databases/$(database)/documents/usuarios/$(request.auth.uid); }
+    function hasPerfil() {
+      return signedIn() && exists(perfilPath()) && get(perfilPath()).data.activo == true;
+    }
+    function perfil() { return get(perfilPath()).data; }
+    function isAdmin() { return isSuper() || (hasPerfil() && perfil().rol == 'admin'); }
+    function veCentro(c) {
+      return isAdmin() || (hasPerfil() && ('*' in perfil().centros || c in perfil().centros));
+    }
+    function editaCentro(c) {
+      return isAdmin() || (hasPerfil() && perfil().rol == 'gestor'
+        && ('*' in perfil().centros || c in perfil().centros));
+    }
+    function reporte(rid) { return /databases/$(database)/documents/reportes/$(rid); }
+
+    // Catálogo de centros, plazos y metas
+    match /config/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Perfiles de gestores (admin / gestor / consulta)
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Consecutivo por centro y año (ACIS-CEN-AAAA-0001); solo puede subir de 1 en 1
+    match /contadores/{cid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['n'])
+        && request.resource.data.n == 1;
+      allow update: if signedIn() && request.resource.data.keys().hasOnly(['n'])
+        && request.resource.data.n == resource.data.n + 1;
+    }
+
+    match /reportes/{rid} {
+      function campos() {
+        return ['id','seq','anio','mes','fecha','hora','centro','empresa','tipo','categoria','riesgo','area',
+                'descripcion','medida','reportante','vinculo','tieneFoto','tieneFotoCierre','responsable',
+                'fCompromiso','accion','estado','fCierre','cierreDesc','verificado','eficaz','motivoAnula',
+                'hist','creado','actualizado'];
+      }
+      function nuevoValido(d) {
+        return d.keys().hasOnly(campos())
+          && d.keys().hasAll(['id','seq','anio','fecha','centro','tipo','categoria','riesgo','area','descripcion','estado','creado'])
+          && d.id == rid
+          && d.centro is string && d.centro.matches('[A-Z0-9]{2,4}')
+          && d.anio is string && d.anio.matches('[0-9]{4}')
+          && d.fecha is string && d.fecha.matches(d.anio + '-[0-9]{2}-[0-9]{2}')
+          && rid.matches('ACIS-' + d.centro + '-' + d.anio + '-[0-9]{4,}')
+          && d.seq is int
+          && getAfter(/databases/$(database)/documents/contadores/$(d.centro + '-' + d.anio)).data.n == d.seq
+          && d.estado == 'Abierto'
+          && d.tipo in ['Acto','Condición']
+          && d.riesgo in ['Alto','Medio','Bajo']
+          && d.descripcion is string && d.descripcion.size() >= 5 && d.descripcion.size() <= 2000
+          && d.area is string && d.area.size() <= 120
+          && d.creado == request.time;
+      }
+
+      allow create: if signedIn() && nuevoValido(request.resource.data);
+      allow read: if veCentro(resource.data.centro);
+      allow update: if editaCentro(resource.data.centro)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+             ['responsable','fCompromiso','accion','estado','fCierre','cierreDesc','verificado',
+              'eficaz','motivoAnula','hist','actualizado','tieneFotoCierre'])
+        && request.resource.data.estado in ['Abierto','En gestión','Cerrado','Anulado'];
+      allow delete: if isAdmin();
+    }
+
+    // Indicadores agregados de los reportes archivados en cierres trimestrales
+    match /resumenes/{cid} {
+      allow read: if isAdmin() || hasPerfil();
+      allow write: if isAdmin();
+    }
+
+    // Bitácora de cierres trimestrales (IDs archivados, usuario, estado)
+    match /cierres/{cid} {
+      allow read, write: if isAdmin();
+    }
+
+    // Fotos (separadas para que las consultas sean livianas). _r = reporte, _c = cierre
+    match /fotos/{fid} {
+      function fotoValida(d) {
+        return d.keys().hasOnly(['reporte','data']) && d.data is string && d.data.size() < 900000;
+      }
+      allow read: if signedIn() && veCentro(get(reporte(resource.data.reporte)).data.centro);
+      // Foto del reportante: solo en la misma transacción que crea el reporte
+      allow create: if signedIn() && fotoValida(request.resource.data)
+        && fid == request.resource.data.reporte + '_r'
+        && !exists(reporte(request.resource.data.reporte))
+        && existsAfter(reporte(request.resource.data.reporte));
+      // Evidencia de cierre: gestor del centro
+      allow create, update: if fotoValida(request.resource.data)
+        && fid == request.resource.data.reporte + '_c'
+        && editaCentro(get(reporte(request.resource.data.reporte)).data.centro);
+      allow delete: if isAdmin();
+    }
+  }
+}
